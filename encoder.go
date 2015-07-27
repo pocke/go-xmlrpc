@@ -32,12 +32,32 @@ func (e *encoder) Write(b []byte) (int, error) {
 
 var _ io.Writer = &encoder{}
 
-func (e *encoder) Encode(method string, params interface{}) error {
+func (e *encoder) EncodeRequest(method string, params interface{}) error {
 	fmt.Fprint(e, `<?xml version="1.0"?>`)
 	fmt.Fprint(e, "<methodCall>")
 	fmt.Fprintf(e, "<methodName>%s</methodName>", method)
 	fmt.Fprint(e, "<params>")
 
+	e.encodeParams(params)
+
+	fmt.Fprint(e, "</params>")
+	fmt.Fprint(e, "</methodCall>")
+	return e.err
+}
+
+func (e *encoder) EncodeResponse(params interface{}) error {
+	fmt.Fprint(e, `<?xml version="1.0"?>`)
+	fmt.Fprint(e, "<methodResponse>")
+	fmt.Fprint(e, "<params>")
+
+	e.encodeParams(params)
+
+	fmt.Fprint(e, "</params>")
+	fmt.Fprint(e, "</methodResponse>")
+	return e.err
+}
+
+func (e *encoder) encodeParams(params interface{}) {
 	val := reflect.ValueOf(params)
 	if val.Kind() == reflect.Slice {
 		for i := 0; i < val.Len(); i++ {
@@ -46,10 +66,6 @@ func (e *encoder) Encode(method string, params interface{}) error {
 	} else {
 		e.encodeParam(val)
 	}
-
-	fmt.Fprint(e, "</params>")
-	fmt.Fprint(e, "</methodCall>")
-	return e.err
 }
 
 func (e *encoder) encodeParam(val reflect.Value) {

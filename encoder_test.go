@@ -13,12 +13,12 @@ type req struct {
 	Slice []int
 }
 
-func TestEncoder(t *testing.T) {
+func TestEncodeRequest(t *testing.T) {
 	assert := func(method string, params interface{}, expected string) {
 		buf := bytes.NewBuffer([]byte{})
 		e := newEncoder(buf)
 
-		err := e.Encode(method, params)
+		err := e.EncodeRequest(method, params)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -26,7 +26,7 @@ func TestEncoder(t *testing.T) {
 		s := buf.String()
 		if s != expected {
 			t.Fatalf(`
-Expected: %s, 
+Expected: %s,
 but got   %s`, expected, s)
 		}
 	}
@@ -55,4 +55,25 @@ but got   %s`, expected, s)
 
 func createEncoded(method, params string) string {
 	return fmt.Sprintf(`<?xml version="1.0"?><methodCall><methodName>%s</methodName><params>%s</params></methodCall>`, method, params)
+}
+
+func TestEncodeResponse(t *testing.T) {
+	assert := func(params interface{}, expected string) {
+		buf := bytes.NewBuffer([]byte{})
+		e := newEncoder(buf)
+
+		err := e.EncodeResponse(params)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		s := buf.String()
+		if s != expected {
+			t.Fatalf(`
+Expected: %s,
+but got   %s`, expected, s)
+		}
+	}
+
+	assert(10, `<?xml version="1.0"?><methodResponse><params><param><value><int>10</int></value></param></params></methodResponse>`)
 }
