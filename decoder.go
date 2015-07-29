@@ -81,9 +81,6 @@ func (d *decoder) DecodeResponseHeader() error {
 			switch m.Name {
 			case "faultCode":
 				err.Code = m.Code
-				if err != nil {
-					return err
-				}
 			case "faultString":
 				err.String = m.String
 			}
