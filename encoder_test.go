@@ -32,6 +32,9 @@ but got   %s`, expected, s)
 	}
 
 	assert("nya", []int{1, 2, 3}, createEncoded("nya", "<param><value><int>1</int></value></param><param><value><int>2</int></value></param><param><value><int>3</int></value></param>"))
+	n1 := 1
+	n2 := 2
+	assert("nya", []*int{&n1, nil, &n2}, createEncoded("nya", "<param><value><int>1</int></value></param><param><value><int>2</int></value></param>"))
 	assert("foo", 10, createEncoded("foo", "<param><value><int>10</int></value></param>"))
 	assert("foo", -10, createEncoded("foo", "<param><value><int>-10</int></value></param>"))
 	assert("bar", true, createEncoded("bar", "<param><value><boolean>1</boolean></value></param>"))
