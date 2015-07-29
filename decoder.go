@@ -29,6 +29,19 @@ type fault struct {
 	Members []member `xml:"member"`
 }
 
+func (f *fault) err() error {
+	err := &FaultResponseError{}
+	for _, m := range f.Members {
+		switch m.Name {
+		case "faultCode":
+			err.Code = m.Code
+		case "faultString":
+			err.String = m.String
+		}
+	}
+	return err
+}
+
 type member struct {
 	Name   string `xml:"name"`
 	Code   int    `xml:"value>int"`
@@ -63,7 +76,6 @@ func (d *decoder) DecodeRequestHeader() (string, error) {
 	}
 
 	d.body = r.Params.Body
-
 	return r.MethodName, nil
 }
 
@@ -76,16 +88,7 @@ func (d *decoder) DecodeResponseHeader() error {
 	}
 
 	if r.Fault != nil {
-		err := &FaultResponseError{}
-		for _, m := range r.Fault.Members {
-			switch m.Name {
-			case "faultCode":
-				err.Code = m.Code
-			case "faultString":
-				err.String = m.String
-			}
-		}
-		return err
+		return r.Fault.err()
 	}
 
 	d.body = r.Params.Body
