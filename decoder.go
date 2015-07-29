@@ -2,7 +2,6 @@ package xmlrpc
 
 import (
 	"encoding/xml"
-	"fmt"
 	"io"
 )
 
@@ -47,17 +46,6 @@ type member struct {
 	Code   int    `xml:"value>int"`
 	String string `xml:"value>string"`
 }
-
-type FaultResponseError struct {
-	Code   int
-	String string
-}
-
-func (e *FaultResponseError) Error() string {
-	return fmt.Sprintf("Code: %d, String: %s", e.Code, e.String)
-}
-
-var _ error = &FaultResponseError{}
 
 func newDecoder(r io.Reader) *decoder {
 	d := &decoder{
